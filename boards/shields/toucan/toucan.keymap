@@ -7,6 +7,7 @@
 #include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/bt.h>
 #include <dt-bindings/zmk/outputs.h>
+#include <dt-bindings/zmk/mouse.h>
 
 /* Layer Definitions */
 #define BASE_L  0
@@ -15,7 +16,7 @@
 #define ADJ_L   3
 #define IOS_L   4
 #define GAME_L  5
-#define GSHF_L  6
+#define IOS_NAV 6
 
 / {
     /* urob's Timeless Home Row Mods Configuration */
@@ -28,15 +29,6 @@
             quick-tap-ms = <150>;
             flavor = "tap-preferred";
             bindings = <&kp>, <&kp>;
-        };
-
-        /* Tap Dance for G_SHIFT Thumb Key */
-        td_gshf: tap_dance_gshf {
-            compatible = "zmk,behavior-tap-dance";
-            label = "TAP_DANCE_GSHF";
-            #binding-cells = <0>;
-            tapping-term-ms = <200>;
-            bindings = <&kp SPC>, <&mo GSHF_L>;
         };
     };
 
@@ -59,9 +51,9 @@
         };
     };
 
-    /* Custom Macros for Spotlight Automation */
+    /* Custom Macros for iOS Spotlight Automation */
     macros {
-        /* Macro to launch Spotlight, type "Toggle Desk Lights" Shortcut, and hit Enter */
+        /* Macro to launch Spotlight, type "Open Keymap" Shortcut, and hit Enter */
         open_keymap: open_keymap {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
@@ -74,6 +66,23 @@
                 , <&macro_wait_time 100>
                 , <&macro_tap &kp RET>
                 ;
+        };
+    };
+
+    /* Symmetrical Tri-Layer Activation */
+    conditional_layers {
+        compatible = "zmk,conditional-layers";
+        
+        /* Holding NAV (Layer 1) and SYM (Layer 2) on Windows Base Layer triggers ADJ (Layer 3) */
+        tri_layer_base {
+            if-layers = <1 2>;
+            then-layer = <3>;
+        };
+
+        /* Holding INAV (Layer 6) and SYM (Layer 2) on iOS Base Layer triggers ADJ (Layer 3) */
+        tri_layer_ios {
+            if-layers = <6 2>;
+            then-layer = <3>;
         };
     };
 
@@ -126,27 +135,27 @@
 &kp TAB    &kp Q       &kp W       &kp E        &kp R        &kp T          &kp Y       &kp U        &kp I        &kp O       &kp P          &kp BSPC
 &kp LGUI   &hm LCTRL A &hm LALT S  &hm LGUI D   &hm LSHFT F  &kp G          &kp H       &hm RSHFT J  &hm RGUI K   &hm RALT L  &hm RCTRL SEMI &kp SQT
 &kp LSHFT  &kp Z       &kp X       &kp C        &kp V        &kp B          &kp N       &kp M        &kp COMMA    &kp DOT     &kp FSLH       &kp ESC
-                                   &kp LCTRL    &mo NAV_L    &kp SPC        &kp RET     &mo SYM_L    &kp LALT
+                                   &kp LCTRL    &mo IOS_NAV  &kp SPC        &kp RET     &mo SYM_L    &kp LALT
             >;
         };
 
-        /* Layer 5: GAME */
+        /* Layer 5: GAME (Unified Gaming, Media & Discord controls) */
         game_layer {
             bindings = <
-&none      &none       &none       &none        &none        &none          &kp LA(Z)   &kp LA(F10)  &kp LA(LS(F10)) &kp LA(F1) &kp LA(F12)  &kp LA(F4)
-&none      &none       &none       &none        &none        &none          &kp LG(G)   &kp C_VOL_DN &kp C_VOL_UP &kp C_MUTE  &mkp RCLK      &kp LC(LS(ESC))
-&none      &none       &none       &none        &none        &none          &none       &none        &kp LG(N2)   &kp LG(N4)  &kp LG(N3)     &kp LG(N1)
-                                   &none        &none        &none          &to BASE_L  &none        &mo GSHF_L
+&kp steam://open/bigpicture &kp LA(SPACE) &kp LG(LC(O)) &kp C_PP &kp C_NEXT &kp C_PREV   &kp LA(Z)   &kp LA(F10)  &kp LA(LS(F10)) &kp LA(F1) &kp LA(F12)  &kp LA(F4)
+&kp LCTRL  &kp LG(EQUAL) &kp LG(MINUS) &kp LG(ESC)  &kp LC(LS(M)) &kp LC(LS(D))   &kp LG(G)   &kp C_VOL_DN &kp C_VOL_UP &kp C_MUTE  &mkp RCLK      &kp LC(LS(ESC))
+&kp LSHFT  &kp LC(Z)   &kp LC(X)   &kp LC(C)    &kp LC(V)    &kp LALT       &none       &none        &kp LG(N2)   &kp LG(N4)  &kp LG(N3)     &kp LG(N1)
+                                   &kp LGUI     &none        &kp SPC        &to BASE_L  &none        &none
             >;
         };
 
-        /* Layer 6: GSHF */
-        gshf_layer {
+        /* Layer 6: IOS_NAV (iPadOS Stage Manager, window snapping & overlays) */
+        ios_nav_layer {
             bindings = <
-&none      &none       &none       &none        &none        &none          &kp LA(SPACE)&kp LG(LC(O))&kp C_PP    &kp C_NEXT  &kp C_PREV     &none
-&none      &none       &none       &none        &none        &none          &kp LG(EQUAL)&kp LG(MINUS)&kp LG(ESC) &kp LC(LS(M))&kp LC(LS(D)) &kp LALT
-&none      &none       &none       &none        &none        &none          &none        &none        &none       &none       &none          &kp LA(SPACE)
-                                   &none        &none        &none          &to BASE_L   &none        &trans
+&kp TAB    &kp N1      &kp N2      &kp N3       &kp N4       &kp N5         &open_keymap &kp LG(S)    &kp C_PP    &kp C_NEXT  &kp C_PREV     &kp BSPC
+&kp LCTRL  &kp LEFT    &kp DOWN    &kp UP       &kp RIGHT    &kp ESC        &kp LG(LA(F))&kp LC(LG(LEFT))&kp LC(LG(RIGHT))&kp LG(GRAVE)&kp LG(BSLH) &kp LG(Q)
+&kp LSHFT  &kp LG(Z)   &kp LG(X)   &kp LG(C)    &kp LG(V)    &kp LG(LS(Z))  &kp LG(H)   &kp LG(UP)   &kp LG(C)   &kp LG(N)   &kp LG(LEFT)   &kp LG(RIGHT)
+                                   &kp LGUI     &trans       &kp SPC        &to BASE_L  &none        &none
             >;
         };
     };
