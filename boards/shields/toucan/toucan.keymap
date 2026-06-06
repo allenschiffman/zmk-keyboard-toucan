@@ -16,7 +16,8 @@
 #define ADJ_L   3
 #define IOS_L   4
 #define GAME_L  5
-#define IOS_NAV 6
+#define GSHF_L  6
+#define IOS_NAV 7
 
 / {
     /* urob's Timeless Home Row Mods Configuration */
@@ -51,7 +52,7 @@
         };
     };
 
-    /* Custom Macros for iOS Spotlight Automation */
+    /* Custom Macros for iOS Spotlight and Steam Launchers */
     macros {
         /* Macro to launch Spotlight, type "Open Keymap" Shortcut, and hit Enter */
         open_keymap: open_keymap {
@@ -63,6 +64,21 @@
                 , <&macro_release &kp LGUI>
                 , <&macro_wait_time 100>
                 , <&macro_tap &kp O &kp P &kp E &kp N &kp SPACE &kp K &kp E &kp Y &kp M &kp A &kp P>
+                , <&macro_wait_time 100>
+                , <&macro_tap &kp RET>
+                ;
+        };
+
+        /* Macro to launch Steam Big Picture via Windows Run dialog */
+        run_steam_bp: run_steam_bp {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings
+                = <&macro_press &kp LGUI>
+                , <&macro_tap &kp R>
+                , <&macro_release &kp LGUI>
+                , <&macro_wait_time 100>
+                , <&macro_tap &kp S &kp T &kp E &kp A &kp M &kp COLON &kp FSLH &kp FSLH &kp O &kp P &kp E &kp N &kp FSLH &kp B &kp I &kp G &kp P &kp I &kp C &kp T &kp U &kp R &kp E>
                 , <&macro_wait_time 100>
                 , <&macro_tap &kp RET>
                 ;
@@ -79,9 +95,9 @@
             then-layer = <3>;
         };
 
-        /* Holding INAV (Layer 6) and SYM (Layer 2) on iOS Base Layer triggers ADJ (Layer 3) */
+        /* Holding INAV (Layer 7) and SYM (Layer 2) on iOS Base Layer triggers ADJ (Layer 3) */
         tri_layer_ios {
-            if-layers = <6 2>;
+            if-layers = <7 2>;
             then-layer = <3>;
         };
     };
@@ -139,17 +155,27 @@
             >;
         };
 
-        /* Layer 5: GAME (Unified Gaming, Media & Discord controls) */
+        /* Layer 5: GAME (One-handed Windows Rightside-only controller gamepad; Left-side is dormant) */
         game_layer {
             bindings = <
-&kp steam://open/bigpicture &kp LA(SPACE) &kp LG(LC(O)) &kp C_PP &kp C_NEXT &kp C_PREV   &kp LA(Z)   &kp LA(F10)  &kp LA(LS(F10)) &kp LA(F1) &kp LA(F12)  &kp LA(F4)
-&kp LCTRL  &kp LG(EQUAL) &kp LG(MINUS) &kp LG(ESC)  &kp LC(LS(M)) &kp LC(LS(D))   &kp LG(G)   &kp C_VOL_DN &kp C_VOL_UP &kp C_MUTE  &mkp RCLK      &kp LC(LS(ESC))
-&kp LSHFT  &kp LC(Z)   &kp LC(X)   &kp LC(C)    &kp LC(V)    &kp LALT       &none       &none        &kp LG(N2)   &kp LG(N4)  &kp LG(N3)     &kp LG(N1)
-                                   &kp LGUI     &none        &kp SPC        &to BASE_L  &none        &none
+&none      &none       &none       &none        &none        &none          &kp LA(Z)   &kp LA(F10)  &kp LA(LS(F10)) &kp LA(F1) &kp LA(F12)  &kp LA(F4)
+&none      &none       &none       &none        &none        &none          &kp LG(G)   &kp C_VOL_DN &kp C_VOL_UP &kp C_MUTE  &mkp RCLK      &kp LC(LS(ESC))
+&none      &none       &none       &none        &none        &none          &none       &none        &kp LG(N2)   &kp LG(N4)  &kp LG(N3)     &kp LG(N1)
+                                   &none        &none        &none          &to BASE_L  &none        &mo GSHF_L
             >;
         };
 
-        /* Layer 6: IOS_NAV (iPadOS Stage Manager, window snapping & overlays) */
+        /* Layer 6: G_SHIFT (One-handed Windows Rightside-only game utility modifier) */
+        gshf_layer {
+            bindings = <
+&none      &none       &none       &none        &none        &none          &kp LA(SPACE)&kp LG(LC(O))&kp C_PP    &kp C_NEXT  &kp C_PREV     &none
+&none      &none       &none       &none        &none        &none          &kp LG(EQUAL)&kp LG(MINUS)&kp LG(ESC) &kp LC(LS(M))&kp LC(LS(D)) &kp LALT
+&none      &none       &none       &none        &none        &none          &none        &none        &none       &none       &none          &kp LA(SPACE)
+                                   &none        &none        &none          &to BASE_L   &none        &trans
+            >;
+        };
+
+        /* Layer 7: IOS_NAV (Stage Manager, multitasking, and snapping) */
         ios_nav_layer {
             bindings = <
 &kp TAB    &kp N1      &kp N2      &kp N3       &kp N4       &kp N5         &open_keymap &kp LG(S)    &kp C_PP    &kp C_NEXT  &kp C_PREV     &kp BSPC
