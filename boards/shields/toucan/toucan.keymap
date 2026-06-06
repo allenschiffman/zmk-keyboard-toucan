@@ -9,15 +9,14 @@
 #include <dt-bindings/zmk/outputs.h>
 #include <dt-bindings/zmk/mouse.h>
 
-/* Layer Definitions */
+/* Layer Definitions (Exactly 7 Layers: Indices 0 to 6) */
 #define BASE_L  0
 #define NAV_L   1
 #define SYM_L   2
 #define ADJ_L   3
 #define IOS_L   4
 #define GAME_L  5
-#define GSHF_L  6
-#define IOS_NAV 7
+#define UTILITY 6
 
 / {
     /* urob's Timeless Home Row Mods Configuration */
@@ -95,9 +94,9 @@
             then-layer = <3>;
         };
 
-        /* Holding INAV (Layer 7) and SYM (Layer 2) on iOS Base Layer triggers ADJ (Layer 3) */
+        /* Holding UTILITY (Layer 6) and SYM (Layer 2) on iOS Base Layer triggers ADJ (Layer 3) */
         tri_layer_ios {
-            if-layers = <7 2>;
+            if-layers = <6 2>;
             then-layer = <3>;
         };
     };
@@ -151,7 +150,7 @@
 &kp TAB    &kp Q       &kp W       &kp E        &kp R        &kp T          &kp Y       &kp U        &kp I        &kp O       &kp P          &kp BSPC
 &kp LGUI   &hm LCTRL A &hm LALT S  &hm LGUI D   &hm LSHFT F  &kp G          &kp H       &hm RSHFT J  &hm RGUI K   &hm RALT L  &hm RCTRL SEMI &kp SQT
 &kp LSHFT  &kp Z       &kp X       &kp C        &kp V        &kp B          &kp N       &kp M        &kp COMMA    &kp DOT     &kp FSLH       &kp ESC
-                                   &kp LCTRL    &mo IOS_NAV  &kp SPC        &kp RET     &mo SYM_L    &kp LALT
+                                   &kp LCTRL    &mo UTILITY  &kp SPC        &kp RET     &mo SYM_L    &kp LALT
             >;
         };
 
@@ -161,22 +160,14 @@
 &none      &none       &none       &none        &none        &none          &kp LA(Z)   &kp LA(F10)  &kp LA(LS(F10)) &kp LA(F1) &kp LA(F12)  &kp LA(F4)
 &none      &none       &none       &none        &none        &none          &kp LG(G)   &kp C_VOL_DN &kp C_VOL_UP &kp C_MUTE  &mkp RCLK      &kp LC(LS(ESC))
 &none      &none       &none       &none        &none        &none          &none       &none        &kp LG(N2)   &kp LG(N4)  &kp LG(N3)     &kp LG(N1)
-                                   &none        &none        &none          &to BASE_L  &none        &mo GSHF_L
+                                   &none        &none        &none          &to BASE_L  &none        &mo UTILITY
             >;
         };
 
-        /* Layer 6: G_SHIFT (One-handed Windows Rightside-only game utility modifier) */
-        gshf_layer {
-            bindings = <
-&none      &none       &none       &none        &none        &none          &kp LA(SPACE)&kp LG(LC(O))&kp C_PP    &kp C_NEXT  &kp C_PREV     &none
-&none      &none       &none       &none        &none        &none          &kp LG(EQUAL)&kp LG(MINUS)&kp LG(ESC) &kp LC(LS(M))&kp LC(LS(D)) &kp LALT
-&none      &none       &none       &none        &none        &none          &none        &none        &none       &none       &none          &kp LA(SPACE)
-                                   &none        &none        &none          &to BASE_L   &none        &trans
-            >;
-        };
-
-        /* Layer 7: IOS_NAV (Stage Manager, multitasking, and snapping) */
-        ios_nav_layer {
+        /* Layer 6: UTILITY (Merged iOS Multitasking & Game Modifiers)
+           - Triggered by holding LEFT middle thumb on IOS Layer (Layer 4) -> Gives full iOS Multitasking Layout
+           - Triggered by holding RIGHT middle thumb on GAME Layer (Layer 5) -> Gives full Game Utility Modifier Layout */
+        utility_layer {
             bindings = <
 &kp TAB    &kp N1      &kp N2      &kp N3       &kp N4       &kp N5         &open_keymap &kp LG(S)    &kp C_PP    &kp C_NEXT  &kp C_PREV     &kp BSPC
 &kp LCTRL  &kp LEFT    &kp DOWN    &kp UP       &kp RIGHT    &kp ESC        &kp LG(LA(F))&kp LC(LG(LEFT))&kp LC(LG(RIGHT))&kp LG(GRAVE)&kp LG(BSLH) &kp LG(Q)
