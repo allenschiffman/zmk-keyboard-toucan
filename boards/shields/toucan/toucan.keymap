@@ -19,38 +19,6 @@
 #define UTILITY 6
 
 / {
-    /* urob's Timeless Home Row Mods Configuration */
-    behaviors {
-        hm: homerow_mods {
-            compatible = "zmk,behavior-hold-tap";
-            label = "HOMEROW_MODS";
-            #binding-cells = <2>;
-            tapping-term-ms = <200>;
-            quick-tap-ms = <150>;
-            flavor = "tap-preferred";
-            bindings = <&kp>, <&kp>;
-        };
-    };
-
-    /* Combos / Chords for fast typing triggers */
-    combos {
-        compatible = "zmk,combos";
-        
-        /* Pressing D + F together sends Escape */
-        combo_esc {
-            timeout-ms = <50>;
-            key-positions = <15 16>; // D and F keys
-            bindings = <&kp ESC>;
-        };
-
-        /* Pressing J + K together sends Backspace */
-        combo_bspc {
-            timeout-ms = <50>;
-            key-positions = <19 20>; // J and K keys
-            bindings = <&kp BSPC>;
-        };
-    };
-
     /* Custom Macros for iOS Spotlight and Steam Launchers */
     macros {
         /* Macro to launch Spotlight, type "Open Keymap" Shortcut, and hit Enter */
@@ -106,9 +74,10 @@
 
         /* Layer 0: BASE */
         default_layer {
+            display-name = "BASE";
             bindings = <
 &kp TAB    &kp Q       &kp W       &kp E        &kp R        &kp T          &kp Y       &kp U        &kp I        &kp O       &kp P          &kp BSPC
-&kp LCTRL  &hm LGUI A  &hm LALT S  &hm LCTRL D  &hm LSHFT F  &kp G          &kp H       &hm RSHFT J  &hm RCTRL K  &hm RALT L  &hm RGUI SEMI  &kp SQT
+&kp LCTRL  &kp A       &kp S       &kp D        &kp F        &kp G          &kp H       &kp J        &kp K        &kp L       &kp SEMI       &kp SQT
 &kp LSHFT  &kp Z       &kp X       &kp C        &kp V        &kp B          &kp N       &kp M        &kp COMMA    &kp DOT     &kp FSLH       &kp ESC
                                    &kp LGUI     &mo NAV_L    &kp SPC        &kp RET     &mo SYM_L    &kp LALT
             >;
@@ -116,6 +85,7 @@
 
         /* Layer 1: NAV */
         nav_layer {
+            display-name = "NAV";
             bindings = <
 &kp TAB    &kp N1      &kp N2      &kp N3       &kp N4       &kp N5         &kp N6      &kp N7       &kp N8       &kp N9      &kp N0         &kp BSPC
 &bt BT_CLR &bt BT_SEL 0&bt BT_SEL 1&bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4   &kp LEFT    &kp DOWN     &kp UP       &kp RIGHT   &none          &none
@@ -126,6 +96,7 @@
 
         /* Layer 2: SYM */
         sym_layer {
+            display-name = "SYM";
             bindings = <
 &kp TAB    &kp EXCL    &kp AT      &kp HASH     &kp DLLR     &kp PRCNT      &kp CARET   &kp AMPS     &kp ASTRK    &kp LPAR    &kp RPAR       &kp BSPC
 &kp LCTRL  &none       &none       &none        &none        &none          &kp MINUS   &kp EQUAL    &kp LBKT     &kp RBKT    &kp BSLH       &kp GRAVE
@@ -136,6 +107,7 @@
 
         /* Layer 3: ADJ */
         adj_layer {
+            display-name = "ADJ";
             bindings = <
 &to BASE_L &none       &kp F7      &kp F8       &kp F9       &kp F12        &kp C_VOL_DN&kp C_MUTE   &kp C_VOL_UP &none       &none          &kp BSPC
 &kp LCTRL  &none       &kp F4      &kp F5       &kp F6       &kp F11        &to GAME_L  &to IOS_L    &to BASE_L   &none       &none          &none
@@ -146,9 +118,10 @@
 
         /* Layer 4: IOS */
         ios_layer {
+            display-name = "IOS";
             bindings = <
 &kp TAB    &kp Q       &kp W       &kp E        &kp R        &kp T          &kp Y       &kp U        &kp I        &kp O       &kp P          &kp BSPC
-&kp LGUI   &hm LCTRL A &hm LALT S  &hm LGUI D   &hm LSHFT F  &kp G          &kp H       &hm RSHFT J  &hm RGUI K   &hm RALT L  &hm RCTRL SEMI &kp SQT
+&kp LGUI   &kp A       &kp S       &kp D        &kp F        &kp G          &kp H       &kp J        &kp K        &kp L       &kp SEMI       &kp SQT
 &kp LSHFT  &kp Z       &kp X       &kp C        &kp V        &kp B          &kp N       &kp M        &kp COMMA    &kp DOT     &kp FSLH       &kp ESC
                                    &kp LCTRL    &mo UTILITY  &kp SPC        &kp RET     &mo SYM_L    &kp LALT
             >;
@@ -156,6 +129,7 @@
 
         /* Layer 5: GAME (One-handed Windows Rightside-only controller gamepad; Left-side is dormant) */
         game_layer {
+            display-name = "GAME";
             bindings = <
 &none      &none       &none       &none        &none        &none          &kp LA(Z)   &kp LA(F10)  &kp LA(LS(F10)) &kp LA(F1) &kp LA(F12)  &kp LA(F4)
 &none      &none       &none       &none        &none        &none          &kp LG(G)   &kp C_VOL_DN &kp C_VOL_UP &kp C_MUTE  &mkp RCLK      &kp LC(LS(ESC))
@@ -164,10 +138,9 @@
             >;
         };
 
-        /* Layer 6: UTILITY (Merged iOS Multitasking & Game Modifiers)
-           - Triggered by holding LEFT middle thumb on IOS Layer (Layer 4) -> Gives full iOS Multitasking Layout
-           - Triggered by holding RIGHT middle thumb on GAME Layer (Layer 5) -> Gives full Game Utility Modifier Layout */
+        /* Layer 6: UTILITY (Merged iOS Multitasking & Game Modifiers) */
         utility_layer {
+            display-name = "IOS_NAV";
             bindings = <
 &kp TAB    &kp N1      &kp N2      &kp N3       &kp N4       &kp N5         &open_keymap &kp LG(S)    &kp C_PP    &kp C_NEXT  &kp C_PREV     &kp BSPC
 &kp LCTRL  &kp LEFT    &kp DOWN    &kp UP       &kp RIGHT    &kp ESC        &kp LG(LA(F))&kp LC(LG(LEFT))&kp LC(LG(RIGHT))&kp LG(GRAVE)&kp LG(BSLH) &kp LG(Q)
