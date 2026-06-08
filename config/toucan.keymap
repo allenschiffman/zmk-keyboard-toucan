@@ -19,8 +19,26 @@
 #define UTILITY 6
 
 / {
-    /* Custom Macros for iOS Spotlight and Steam Launchers */
+    /* Custom Macros for iOS System Operations and App Launchers */
     macros {
+        /* Control Center: Passes Caps(Globe) + C via iPadOS Remap Sandbox */
+        ccnt_macro: ccnt_macro {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&macro_press &kp CAPS>, 
+                       <&macro_tap &kp C>, 
+                       <&macro_release &kp CAPS>;
+        };
+
+        /* Notification Center: Passes Caps(Globe) + N via iPadOS Remap Sandbox */
+        notf_macro: notf_macro {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&macro_press &kp CAPS>, 
+                       <&macro_tap &kp N>, 
+                       <&macro_release &kp CAPS>;
+        };
+
         /* Macro to launch Spotlight, type "Open Keymap" Shortcut, and hit Enter */
         open_keymap: open_keymap {
             compatible = "zmk,behavior-macro";
@@ -123,11 +141,11 @@
 &kp TAB    &kp Q       &kp W       &kp E        &kp R        &kp T          &kp Y       &kp U        &kp I        &kp O       &kp P          &kp BSPC
 &kp LGUI   &kp A       &kp S       &kp D        &kp F        &kp G          &kp H       &kp J        &kp K        &kp L       &kp SEMI       &kp SQT
 &kp LSHFT  &kp Z       &kp X       &kp C        &kp V        &kp B          &kp N       &kp M        &kp COMMA    &kp DOT     &kp FSLH       &kp ESC
-                                   &kp LCTRL    &mo UTILITY  &kp SPC        &kp RET     &mo SYM_L    &kp LALT
+                                   &kp CAPS     &mo UTILITY  &kp SPC        &kp RET     &mo SYM_L    &kp LALT
             >;
         };
 
-        /* Layer 5: GAME (One-handed Windows Rightside-only controller gamepad; Left-side is dormant) */
+        /* Layer 5: GAME */
         game_layer {
             display-name = "GAME";
             bindings = <
@@ -138,13 +156,13 @@
             >;
         };
 
-        /* Layer 6: UTILITY (Merged iOS Multitasking & Game Modifiers) */
+        /* Layer 6: UTILITY (Merged iOS Multitasking & Navigation Pad) */
         utility_layer {
             display-name = "IOS_NAV";
             bindings = <
 &kp TAB    &kp N1      &kp N2      &kp N3       &kp N4       &kp N5         &open_keymap &kp LG(S)    &kp C_PP    &kp C_NEXT  &kp C_PREV     &kp BSPC
 &kp LCTRL  &kp LEFT    &kp DOWN    &kp UP       &kp RIGHT    &kp ESC        &kp LG(LA(F))&kp LC(LG(LEFT))&kp LC(LG(RIGHT))&kp LG(GRAVE)&kp LG(BSLH) &kp LG(Q)
-&kp LSHFT  &kp LG(Z)   &kp LG(X)   &kp LG(C)    &kp LG(V)    &kp LG(LS(Z))  &kp LG(H)   &kp LG(UP)   &kp LG(C)   &kp LG(N)   &kp LG(LEFT)   &kp LG(RIGHT)
+&kp LSHFT  &kp LG(Z)   &kp LG(X)   &kp LG(C)    &kp LG(V)    &kp LG(LS(Z))  &kp LG(H)   &kp LG(UP)   &ccnt_macro &notf_macro &kp LG(LEFT)   &kp LG(RIGHT)
                                    &kp LGUI     &trans       &kp SPC        &to BASE_L  &none        &none
             >;
         };
