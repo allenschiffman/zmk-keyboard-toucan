@@ -1,14 +1,20 @@
 /*
- * Toucan Split Keyboard — Allen Schiffman optimized keymap
- * Generated: 2026-06-09
+ * Toucan Split Keyboard — Allen Schiffman optimized keymap v7
+ * Generated: 2026-06-24
  * SPDX-License-Identifier: MIT
  *
- * Design notes:
- * - Layer order changed so momentary layers sit ABOVE persistent base/profile layers.
+ * Source-of-truth architecture:
  *   BASE=0, IOS=1, GAME=2, NAV=3, SYM=4, IOS_NAV=5, ADJ=6.
- * - ADJ is the highest layer so tri-layer activation is not masked.
- * - iPad Globe behavior is implemented by sending CAPS and relying on iPadOS
- *   Hardware Keyboard > Modifier Keys > Caps Lock = Globe.
+ *   iPad = Bluetooth profile 0. Windows PC = Bluetooth profile 1.
+ *   iPadOS remaps Caps Lock to Globe in Hardware Keyboard > Modifier Keys.
+ *
+ * v7 highlights:
+ *   - Symmetric Cirque scrolling from either orange thumb on BASE and IOS.
+ *   - Reliable order-independent IOS_NAV + SYM tri-layer.
+ *   - Only Allen's three required NVIDIA shortcuts remain.
+ *   - Holdable Command-Tab and Alt-Tab switchers.
+ *   - FKA navigation moved off ordinary Tab/Shift-Tab/Space.
+ *   - Host+OS macros keep Bluetooth profile and key layer synchronized.
  */
 
 #include <behaviors.dtsi>
@@ -17,125 +23,198 @@
 #include <dt-bindings/zmk/outputs.h>
 #include <dt-bindings/zmk/mouse.h>
 
-#define BASE_L  0
-#define IOS_L   1
-#define GAME_L  2
-#define NAV_L   3
-#define SYM_L   4
-#define UTILITY 5
-#define ADJ_L   6
+#define BASE_L     0
+#define IOS_L      1
+#define GAME_L     2
+#define NAV_L      3
+#define SYM_L      4
+#define IOS_NAV_L  5
+#define ADJ_L      6
 
-/* Beekeeb Toucan's stock dtsi routes Cirque trackpad scroll to layers <1 2>.
- * Because this optimized keymap moves NAV/SYM to 3/4, keep scroll tied to NAV+SYM.
+/* Beekeeb's stock Toucan listener converts the Cirque to scroll on selected layers.
+ * Include both orange-thumb layers for each OS:
+ *   BASE: NAV or SYM
+ *   IOS:  IOS_NAV or SYM
  */
 &glidepoint_listener {
     scroller {
-        layers = <NAV_L SYM_L>;
+        layers = <NAV_L SYM_L IOS_NAV_L>;
     };
 };
 
 / {
     macros {
+
+        /* Multi-device host selectors: profile + output + OS layer remain synchronized. */
+        host_ipad: host_ipad {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            wait-ms = <25>;
+            tap-ms = <25>;
+            bindings = <&out OUT_BLE>, <&bt BT_SEL 0>, <&to IOS_L>;
+        };
+
+        host_pc: host_pc {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            wait-ms = <25>;
+            tap-ms = <25>;
+            bindings = <&out OUT_BLE>, <&bt BT_SEL 1>, <&to BASE_L>;
+        };
+
         ccnt_macro: ccnt_macro {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings = <&macro_press &kp CAPS>,
-                       <&macro_tap &kp C>,
-                       <&macro_release &kp CAPS>;
+            bindings = <&macro_press &kp CAPS>, <&macro_tap &kp C>, <&macro_release &kp CAPS>;
         };
 
-        globe_n_macro: globe_n_macro {
+        globe_lock_macro: globe_lock_macro {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings = <&macro_press &kp CAPS>,
-                       <&macro_tap &kp N>,
-                       <&macro_release &kp CAPS>;
+            bindings = <&macro_press &kp CAPS>, <&macro_tap &kp N>, <&macro_release &kp CAPS>;
         };
 
         globe_home_macro: globe_home_macro {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings = <&macro_press &kp CAPS>,
-                       <&macro_tap &kp H>,
-                       <&macro_release &kp CAPS>;
+            bindings = <&macro_press &kp CAPS>, <&macro_tap &kp H>, <&macro_release &kp CAPS>;
         };
 
         globe_dock_macro: globe_dock_macro {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings = <&macro_press &kp CAPS>,
-                       <&macro_tap &kp A>,
-                       <&macro_release &kp CAPS>;
+            bindings = <&macro_press &kp CAPS>, <&macro_tap &kp A>, <&macro_release &kp CAPS>;
         };
 
         globe_library_macro: globe_library_macro {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings = <&macro_press &kp CAPS>,
-                       <&macro_press &kp LSHFT>,
-                       <&macro_tap &kp A>,
-                       <&macro_release &kp LSHFT>,
-                       <&macro_release &kp CAPS>;
+            bindings = <&macro_press &kp CAPS>, <&macro_press &kp LSHFT>, <&macro_tap &kp A>,
+                       <&macro_release &kp LSHFT>, <&macro_release &kp CAPS>;
         };
 
         globe_menu_macro: globe_menu_macro {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings = <&macro_press &kp CAPS>,
-                       <&macro_tap &kp M>,
-                       <&macro_release &kp CAPS>;
+            bindings = <&macro_press &kp CAPS>, <&macro_tap &kp M>, <&macro_release &kp CAPS>;
         };
 
         globe_fullscreen_macro: globe_fullscreen_macro {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings = <&macro_press &kp CAPS>,
-                       <&macro_tap &kp F>,
-                       <&macro_release &kp CAPS>;
+            bindings = <&macro_press &kp CAPS>, <&macro_tap &kp F>, <&macro_release &kp CAPS>;
+        };
+
+        globe_up_macro: globe_up_macro {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&macro_press &kp CAPS>, <&macro_tap &kp UP>, <&macro_release &kp CAPS>;
         };
 
         tile_left_macro: tile_left_macro {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings = <&macro_press &kp LCTRL>,
-                       <&macro_press &kp CAPS>,
-                       <&macro_tap &kp LEFT>,
-                       <&macro_release &kp CAPS>,
-                       <&macro_release &kp LCTRL>;
+            bindings = <&macro_press &kp LCTRL>, <&macro_press &kp CAPS>, <&macro_tap &kp LEFT>,
+                       <&macro_release &kp CAPS>, <&macro_release &kp LCTRL>;
         };
 
         tile_right_macro: tile_right_macro {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings = <&macro_press &kp LCTRL>,
-                       <&macro_press &kp CAPS>,
-                       <&macro_tap &kp RIGHT>,
-                       <&macro_release &kp CAPS>,
-                       <&macro_release &kp LCTRL>;
+            bindings = <&macro_press &kp LCTRL>, <&macro_press &kp CAPS>, <&macro_tap &kp RIGHT>,
+                       <&macro_release &kp CAPS>, <&macro_release &kp LCTRL>;
         };
 
+        ios_screenshot_macro: ios_screenshot_macro {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&macro_press &kp LGUI>, <&macro_press &kp LSHFT>, <&macro_tap &kp N3>,
+                       <&macro_release &kp LSHFT>, <&macro_release &kp LGUI>;
+        };
+
+        ios_markup_screenshot_macro: ios_markup_screenshot_macro {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&macro_press &kp LGUI>, <&macro_press &kp LSHFT>, <&macro_tap &kp N4>,
+                       <&macro_release &kp LSHFT>, <&macro_release &kp LGUI>;
+        };
+
+        /* Tap for the next app; hold to leave Command down while Tab/Shift+Tab is used. */
+        app_switch_hold: app_switch_hold {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            wait-ms = <20>;
+            tap-ms = <30>;
+            bindings = <&macro_press &kp LGUI>, <&macro_tap &kp TAB>,
+                       <&macro_pause_for_release>, <&macro_release &kp LGUI>;
+        };
+
+        /* Windows equivalent: tap for the previous app; hold to choose with Tab/Shift+Tab. */
+        win_app_switch_hold: win_app_switch_hold {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            wait-ms = <20>;
+            tap-ms = <30>;
+            bindings = <&macro_press &kp LALT>, <&macro_tap &kp TAB>,
+                       <&macro_pause_for_release>, <&macro_release &kp LALT>;
+        };
+
+        /* Reliable fallback for the iPad Shortcut named exactly "Open Keymap".
+         * The long post-Spotlight delay prevents iPadOS from swallowing the initial O over BLE.
+         */
         open_keymap: open_keymap {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings = <&macro_press &kp LGUI>,
-                       <&macro_tap &kp SPACE>,
-                       <&macro_release &kp LGUI>,
-                       <&macro_wait_time 100>,
+            wait-ms = <110>;
+            tap-ms = <70>;
+            bindings = <&macro_press &kp LGUI>, <&macro_tap &kp SPACE>, <&macro_release &kp LGUI>,
+                       <&macro_wait_time 900>,
                        <&macro_tap &kp O &kp P &kp E &kp N &kp SPACE &kp K &kp E &kp Y &kp M &kp A &kp P>,
-                       <&macro_wait_time 100>,
-                       <&macro_tap &kp RET>;
+                       <&macro_wait_time 350>, <&macro_tap &kp RET>;
         };
 
         run_steam_bp: run_steam_bp {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings = <&macro_press &kp LGUI>,
-                       <&macro_tap &kp R>,
-                       <&macro_release &kp LGUI>,
-                       <&macro_wait_time 100>,
+            wait-ms = <55>;
+            tap-ms = <55>;
+            bindings = <&macro_press &kp LGUI>, <&macro_tap &kp R>, <&macro_release &kp LGUI>,
+                       <&macro_wait_time 300>,
                        <&macro_tap &kp S &kp T &kp E &kp A &kp M &kp COLON &kp FSLH &kp FSLH &kp O &kp P &kp E &kp N &kp FSLH &kp B &kp I &kp G &kp P &kp I &kp C &kp T &kp U &kp R &kp E>,
-                       <&macro_wait_time 100>,
-                       <&macro_tap &kp RET>;
+                       <&macro_wait_time 250>, <&macro_tap &kp RET>;
+        };
+
+        win_disp_pc: win_disp_pc {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            wait-ms = <50>;
+            tap-ms = <50>;
+            bindings = <&macro_press &kp LGUI>, <&macro_tap &kp R>, <&macro_release &kp LGUI>,
+                       <&macro_wait_time 300>,
+                       <&macro_tap &kp D &kp I &kp S &kp P &kp L &kp A &kp Y &kp S &kp W &kp I &kp T &kp C &kp H &kp DOT &kp E &kp X &kp E &kp SPACE &kp FSLH &kp I &kp N &kp T &kp E &kp R &kp N &kp A &kp L>,
+                       <&macro_wait_time 250>, <&macro_tap &kp RET>;
+        };
+
+        win_disp_extend: win_disp_extend {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            wait-ms = <50>;
+            tap-ms = <50>;
+            bindings = <&macro_press &kp LGUI>, <&macro_tap &kp R>, <&macro_release &kp LGUI>,
+                       <&macro_wait_time 300>,
+                       <&macro_tap &kp D &kp I &kp S &kp P &kp L &kp A &kp Y &kp S &kp W &kp I &kp T &kp C &kp H &kp DOT &kp E &kp X &kp E &kp SPACE &kp FSLH &kp E &kp X &kp T &kp E &kp N &kp D>,
+                       <&macro_wait_time 250>, <&macro_tap &kp RET>;
+        };
+
+        win_disp_second: win_disp_second {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            wait-ms = <50>;
+            tap-ms = <50>;
+            bindings = <&macro_press &kp LGUI>, <&macro_tap &kp R>, <&macro_release &kp LGUI>,
+                       <&macro_wait_time 300>,
+                       <&macro_tap &kp D &kp I &kp S &kp P &kp L &kp A &kp Y &kp S &kp W &kp I &kp T &kp C &kp H &kp DOT &kp E &kp X &kp E &kp SPACE &kp FSLH &kp E &kp X &kp T &kp E &kp R &kp N &kp A &kp L>,
+                       <&macro_wait_time 250>, <&macro_tap &kp RET>;
         };
     };
 
@@ -148,7 +227,7 @@
         };
 
         tri_layer_ios {
-            if-layers = <UTILITY SYM_L>;
+            if-layers = <IOS_NAV_L SYM_L>;
             then-layer = <ADJ_L>;
         };
     };
@@ -156,80 +235,74 @@
     keymap {
         compatible = "zmk,keymap";
 
-        /* Layer 0: BASE — Windows/PC typing base */
+        /* Layer 0: BASE — Windows 11 typing base */
         default_layer {
             display-name = "BASE";
             bindings = <
-    &kp TAB                     &kp Q                       &kp W                       &kp E                       &kp R                       &kp T                         &kp Y                       &kp U                       &kp I                       &kp O                       &kp P                       &kp BSPC                  
-    &kp LCTRL                   &kp A                       &kp S                       &kp D                       &kp F                       &kp G                         &kp H                       &kp J                       &kp K                       &kp L                       &kp SEMI                    &kp SQT                   
-    &kp LSHFT                   &kp Z                       &kp X                       &kp C                       &kp V                       &kp B                         &kp N                       &kp M                       &kp COMMA                   &kp DOT                     &kp FSLH                    &kp ESC                   
-                                   &kp LGUI                    &mo NAV_L                   &kp SPC                       &kp RET                     &mo SYM_L                   &kp LALT                  
+    &kp TAB                        &kp Q                          &kp W                          &kp E                          &kp R                          &kp T                          &kp Y                          &kp U                          &kp I                          &kp O                          &kp P                          &kp BSPC
+    &kp LCTRL                      &kp A                          &kp S                          &kp D                          &kp F                          &kp G                          &kp H                          &kp J                          &kp K                          &kp L                          &kp SEMI                       &kp SQT
+    &kp LSHFT                      &kp Z                          &kp X                          &kp C                          &kp V                          &kp B                          &kp N                          &kp M                          &kp COMMA                      &kp DOT                        &kp FSLH                       &kp ESC
+                                   &kp LGUI                       &mo NAV_L                      &kp SPC                        &kp RET                        &mo SYM_L                      &kp LALT
             >;
         };
-
-        /* Layer 1: IOS — iPadOS typing base: Command where Windows Control normally sits, Caps→Globe thumb */
+        /* Layer 1: IOS — iPadOS typing base */
         ios_layer {
             display-name = "IOS";
             bindings = <
-    &kp TAB                     &kp Q                       &kp W                       &kp E                       &kp R                       &kp T                         &kp Y                       &kp U                       &kp I                       &kp O                       &kp P                       &kp BSPC                  
-    &kp LGUI                    &kp A                       &kp S                       &kp D                       &kp F                       &kp G                         &kp H                       &kp J                       &kp K                       &kp L                       &kp SEMI                    &kp SQT                   
-    &kp LSHFT                   &kp Z                       &kp X                       &kp C                       &kp V                       &kp B                         &kp N                       &kp M                       &kp COMMA                   &kp DOT                     &kp FSLH                    &kp ESC                   
-                                   &kp CAPS                    &mo UTILITY                 &kp SPC                       &kp RET                     &mo SYM_L                   &kp LALT                  
+    &kp TAB                        &kp Q                          &kp W                          &kp E                          &kp R                          &kp T                          &kp Y                          &kp U                          &kp I                          &kp O                          &kp P                          &kp BSPC
+    &kp LGUI                       &kp A                          &kp S                          &kp D                          &kp F                          &kp G                          &kp H                          &kp J                          &kp K                          &kp L                          &kp SEMI                       &kp SQT
+    &kp LSHFT                      &kp Z                          &kp X                          &kp C                          &kp V                          &kp B                          &kp N                          &kp M                          &kp COMMA                      &kp DOT                        &kp FSLH                       &kp ESC
+                                   &kp CAPS                       &mo IOS_NAV_L                  &kp SPC                        &kp RET                        &mo SYM_L                      &kp LALT
             >;
         };
-
         /* Layer 2: GAME — Windows couch/controller command deck */
         game_layer {
             display-name = "GAME";
             bindings = <
-    &run_steam_bp               &kp LG(G)                   &kp LC(LG(O))               &kp LG(S)                   &kp LG(E)                   &kp LA(TAB)                   &kp LA(Z)                   &kp LA(F10)                 &kp LA(LS(F10))             &kp LA(F1)                  &kp LA(R)                   &kp LA(F4)                
-    &kp LCTRL                   &kp LC(Z)                   &kp LC(X)                   &kp LC(C)                   &kp LC(V)                   &kp LC(A)                     &kp LEFT                    &kp DOWN                    &kp UP                      &kp RIGHT                   &mkp RCLK                   &kp LC(LS(ESC))           
-    &kp LSHFT                   &kp ESC                     &kp TAB                     &kp SPACE                   &kp RET                     &kp BSPC                      &kp LG(N1)                  &kp LG(N2)                  &kp LG(N3)                  &kp LG(N4)                  &kp C_MUTE                  &kp C_PP                  
-                                   &kp LGUI                    &mo NAV_L                   &kp SPACE                     &to BASE_L                  &kp C_VOL_DN                &mo UTILITY               
+    &run_steam_bp                  &kp LG(G)                      &kp LC(LG(O))                  &kp LG(LS(S))                  &kp LA(PSCRN)                  &win_app_switch_hold           &kp LA(F10)                    &kp LA(F1)                     &kp LA(LS(F10))                &kp PSCRN                      &kp LC(LG(T))                  &kp LA(F4)
+    &kp LCTRL                      &kp LC(Z)                      &kp LC(X)                      &kp LC(C)                      &kp LC(V)                      &kp LC(A)                      &kp LEFT                       &kp DOWN                       &kp UP                         &kp RIGHT                      &mkp RCLK                      &kp LC(LS(ESC))
+    &kp LSHFT                      &kp ESC                        &kp TAB                        &kp SPACE                      &kp RET                        &kp BSPC                       &win_disp_pc                   &win_disp_extend               &win_disp_second               &kp LG(P)                      &kp LC(LG(V))                  &kp LA(P)
+                                   &kp LGUI                       &mo NAV_L                      &kp SPACE                      &to BASE_L                     &kp C_VOL_DN                   &kp C_VOL_UP
             >;
         };
-
-        /* Layer 3: NAV — Numbers, arrows, Bluetooth, output controls */
+        /* Layer 3: NAV — Numbers, navigation, hosts, outputs and Windows overflow */
         nav_layer {
             display-name = "NAV";
             bindings = <
-    &kp TAB                     &kp N1                      &kp N2                      &kp N3                      &kp N4                      &kp N5                        &kp N6                      &kp N7                      &kp N8                      &kp N9                      &kp N0                      &kp BSPC                  
-    &bt BT_CLR                  &bt BT_SEL 0                &bt BT_SEL 1                &bt BT_SEL 2                &bt BT_SEL 3                &bt BT_SEL 4                  &kp LEFT                    &kp DOWN                    &kp UP                      &kp RIGHT                   &kp HOME                    &kp END                   
-    &kp LSHFT                   &studio_unlock              &out OUT_BLE                &out OUT_USB                &bt BT_NXT                  &bt BT_PRV                    &kp PG_DN                   &kp PG_UP                   &kp DEL                     &none                       &none                       &none                     
-                                   &kp LGUI                    &trans                      &kp SPC                       &kp RET                     &trans                      &kp LALT                  
+    &kp TAB                        &kp N1                         &kp N2                         &kp N3                         &kp N4                         &kp N5                         &kp N6                         &kp N7                         &kp N8                         &kp N9                         &kp N0                         &kp BSPC
+    &bt BT_CLR                     &host_ipad                     &host_pc                       &bt BT_SEL 2                   &bt BT_SEL 3                   &bt BT_SEL 4                   &kp LEFT                       &kp DOWN                       &kp UP                         &kp RIGHT                      &kp HOME                       &kp END
+    &kp LSHFT                      &studio_unlock                 &out OUT_BLE                   &out OUT_USB                   &kp LG(A)                      &kp LG(V)                      &kp PG_DN                      &kp PG_UP                      &kp DEL                        &kp LG(P)                      &kp LC(LG(V))                  &kp PSCRN
+                                   &kp LGUI                       &trans                         &kp SPC                        &kp RET                        &trans                         &kp LALT
             >;
         };
-
-        /* Layer 4: SYM — Symbols and delimiters */
+        /* Layer 4: SYM — Symbols plus F1-F10 */
         sym_layer {
             display-name = "SYM";
             bindings = <
-    &kp TAB                     &kp EXCL                    &kp AT                      &kp HASH                    &kp DLLR                    &kp PRCNT                     &kp CARET                   &kp AMPS                    &kp ASTRK                   &kp LPAR                    &kp RPAR                    &kp BSPC                  
-    &kp LCTRL                   &trans                      &trans                      &trans                      &trans                      &trans                        &kp MINUS                   &kp EQUAL                   &kp LBKT                    &kp RBKT                    &kp BSLH                    &kp GRAVE                 
-    &kp LSHFT                   &trans                      &trans                      &trans                      &trans                      &trans                        &kp UNDER                   &kp PLUS                    &kp LBRC                    &kp RBRC                    &kp PIPE                    &kp TILDE                 
-                                   &kp LGUI                    &trans                      &kp SPC                       &kp RET                     &trans                      &kp LALT                  
+    &kp TAB                        &kp EXCL                       &kp AT                         &kp HASH                       &kp DLLR                       &kp PRCNT                      &kp CARET                      &kp AMPS                       &kp ASTRK                      &kp LPAR                       &kp RPAR                       &kp BSPC
+    &kp LCTRL                      &kp F1                         &kp F2                         &kp F3                         &kp F4                         &kp F5                         &kp MINUS                      &kp EQUAL                      &kp LBKT                       &kp RBKT                       &kp BSLH                       &kp GRAVE
+    &kp LSHFT                      &kp F6                         &kp F7                         &kp F8                         &kp F9                         &kp F10                        &kp UNDER                      &kp PLUS                       &kp LBRC                       &kp RBRC                       &kp PIPE                       &kp TILDE
+                                   &kp LGUI                       &trans                         &kp SPC                        &kp RET                        &trans                         &kp LALT
             >;
         };
-
-        /* Layer 5: IOS_NAV — iPadOS navigation, windowing, media, and Apple shortcuts */
-        utility_layer {
+        /* Layer 5: IOS_NAV — iPadOS navigation, windowing, editing and FKA controls */
+        ios_nav_layer {
             display-name = "IOS_NAV";
             bindings = <
-    &kp TAB                     &kp N1                      &kp N2                      &kp N3                      &kp N4                      &kp N5                        &open_keymap                &kp LG(SPACE)               &kp C_PP                    &kp C_NEXT                  &kp C_PREV                  &kp BSPC                  
-    &kp LCTRL                   &kp LEFT                    &kp DOWN                    &kp UP                      &kp RIGHT                   &kp ESC                       &globe_fullscreen_macro     &tile_left_macro            &tile_right_macro           &globe_menu_macro           &kp LG(W)                   &ccnt_macro               
-    &kp LSHFT                   &kp LG(Z)                   &kp LG(X)                   &kp LG(C)                   &kp LG(V)                   &kp LG(LS(Z))                 &globe_home_macro           &globe_dock_macro           &globe_library_macro        &globe_n_macro              &kp LG(LS(TAB))             &kp LG(TAB)               
-                                   &kp LGUI                    &trans                      &kp SPC                       &to BASE_L                  &kp CAPS                    &none                     
+    &kp LC(LA(LS(LG(N1))))         &kp LG(A)                      &kp LG(F)                      &kp LG(B)                      &kp LG(I)                      &kp LG(K)                      &open_keymap                   &kp LG(SPACE)                  &ios_screenshot_macro          &ios_markup_screenshot_macro    &kp C_PP                       &kp BSPC
+    &kp LC(LA(LS(LG(N2))))         &kp LEFT                       &kp DOWN                       &kp UP                         &kp RIGHT                      &kp LG(M)                      &globe_fullscreen_macro        &tile_left_macro               &tile_right_macro              &globe_menu_macro              &kp LG(W)                      &ccnt_macro
+    &kp LC(LA(LS(LG(N3))))         &kp LG(Z)                      &kp LG(X)                      &kp LG(C)                      &kp LG(V)                      &kp LG(LS(Z))                  &globe_home_macro              &globe_dock_macro              &globe_library_macro           &globe_lock_macro              &globe_up_macro                &app_switch_hold
+                                   &kp LGUI                       &trans                         &kp SPC                        &kp RET                        &trans                         &kp LALT
             >;
         };
-
-        /* Layer 6: ADJ — System adjustment, layer switching, function keys, FKA shortcut slots */
+        /* Layer 6: ADJ — Host/media/firmware/FKA/system adjustment */
         adj_layer {
             display-name = "ADJ";
             bindings = <
-    &to BASE_L                  &out OUT_BLE                &out OUT_USB                &kp F7                      &kp F8                      &kp F9                        &kp C_VOL_DN                &kp C_MUTE                  &kp C_VOL_UP                &kp C_PP                    &kp C_PREV                  &kp C_NEXT                
-    &kp LCTRL                   &bt BT_CLR_ALL              &kp F4                      &kp F5                      &kp F6                      &kp F12                       &to GAME_L                  &to IOS_L                   &to BASE_L                  &kp LC(LA(LS(LG(N1))))      &kp LC(LA(LS(LG(N2))))      &kp LC(LA(LS(LG(N3))))    
-    &bt BT_NXT                  &bt BT_PRV                  &kp F1                      &kp F2                      &kp F3                      &kp F10                       &kp LC(LA(LS(LG(N4))))      &kp LC(LA(LS(LG(N5))))      &none                       &none                       &none                       &none                     
-                                   &kp LGUI                    &trans                      &kp SPC                       &kp RET                     &trans                      &kp LALT                  
+    &to BASE_L                     &host_ipad                     &host_pc                       &bt BT_SEL 2                   &bt BT_SEL 3                   &bt BT_SEL 4                   &kp C_VOL_DN                   &kp C_MUTE                     &kp C_VOL_UP                   &kp C_PP                       &kp C_PREV                     &kp C_NEXT
+    &kp LCTRL                      &bt BT_CLR                     &bt BT_CLR_ALL                 &studio_unlock                 &out OUT_BLE                   &out OUT_USB                   &to GAME_L                     &to IOS_L                      &to BASE_L                     &kp LC(LA(LS(LG(N4))))         &kp LC(LA(LS(LG(N5))))         &kp LC(LA(LS(LG(N6))))
+    &kp LSHFT                      &kp F11                        &kp F12                        &kp LG(A)                      &kp LG(P)                      &kp LC(LG(V))                  &kp LC(LA(LS(LG(N7))))         &kp LG(V)                      &win_disp_pc                   &win_disp_extend               &win_disp_second               &kp LG(I)
+                                   &kp LGUI                       &trans                         &kp SPC                        &kp RET                        &trans                         &kp LALT
             >;
         };
     };
